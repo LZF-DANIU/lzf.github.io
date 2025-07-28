@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灵感生成器 | 每日创意源泉</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        // 配置Tailwind自定义主题
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366f1', // 主色调：靛蓝色，代表创意和灵感
+                        secondary: '#f97316', // 辅助色：橙色，用于强调和交互元素
+                        neutral: {
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                            800: '#1f2937',
+                            900: '#111827'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        serif: ['Merriweather', 'Georgia', 'serif']
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-neutral-100 to-white min-h-screen font-sans text-neutral-800">
+    <!-- 导航栏 -->
+    <header class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md shadow-sm z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-lightbulb-o text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">灵感生成器</h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#" class="text-neutral-800 hover:text-primary transition-colors font-medium">首页</a>
+                <a href="#categories" class="text-neutral-800 hover:text-primary transition-colors font-medium">分类</a>
+                <a href="#saved" class="text-neutral-800 hover:text-primary transition-colors font-medium">收藏</a>
+                <a href="#about" class="text-neutral-800 hover:text-primary transition-colors font-medium">关于</a>
+            </nav>
+            <button id="mobile-menu-button" class="md:hidden text-neutral-800 hover:text-primary">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-neutral-200 px-4 py-2">
+            <a href="#" class="block py-3 text-neutral-800 hover:text-primary transition-colors">首页</a>
+            <a href="#categories" class="block py-3 text-neutral-800 hover:text-primary transition-colors">分类</a>
+            <a href="#saved" class="block py-3 text-neutral-800 hover:text-primary transition-colors">收藏</a>
+            <a href="#about" class="block py-3 text-neutral-800 hover:text-primary transition-colors">关于</a>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="container mx-auto px-4 pt-28 pb-20">
+        <!-- 英雄区域 -->
+        <section class="text-center mb-16 max-w-3xl mx-auto">
+            <h2 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-6 text-shadow leading-tight">
+                寻找你的<span class="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">下一个</span>创意灵感
+            </h2>
+            <p class="text-lg text-neutral-600 mb-8 max-w-2xl mx-auto">
+                无论你是作家、设计师还是寻找新鲜想法的人，这里总有能激发你创造力的灵感
+            </p>
+            <button id="generate-btn" class="bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center mx-auto">
+                <i class="fa fa-magic mr-2"></i> 生成灵感
+            </button>
+        </section>
+
+        <!-- 灵感卡片 -->
+        <section class="max-w-3xl mx-auto mb-20">
+            <div id="inspiration-card" class="bg-white rounded-2xl shadow-xl p-8 transition-all duration-500 transform hover:shadow-2xl border border-neutral-200">
+                <div class="flex justify-between items-start mb-6">
+                    <span id="inspiration-category" class="bg-primary/10 text-primary px-4 py-1 rounded-full text-sm font-medium">
+                        写作
+                    </span>
+                    <button id="save-btn" class="text-neutral-400 hover:text-secondary transition-colors">
+                        <i class="fa fa-heart-o text-xl"></i>
+                    </button>
+                </div>
+                <h3 id="inspiration-title" class="text-2xl font-bold mb-4">探索被遗忘的角落</h3>
+                <p id="inspiration-content" class="text-neutral-600 mb-6 leading-relaxed">
+                    写一个关于在城市中发现被遗忘空间的故事，这个空间可能是一个废弃的地铁站、旧图书馆的阁楼，或者是办公楼之间的小巷。探索这个空间的历史以及它如何影响发现者的生活。
+                </p>
+                <div class="flex justify-between items-center text-sm text-neutral-500">
+                    <span id="inspiration-date">今日灵感</span>
+                    <button id="share-btn" class="hover:text-primary transition-colors">
+                        <i class="fa fa-share-alt mr-1"></i> 分享
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 分类区域 -->
+        <section id="categories" class="mb-20">
+            <h2 class="text-2xl font-bold mb-8 text-center">按类别浏览</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <button class="category-btn bg-white p-6 rounded-xl shadow hover:shadow-md transition-all text-center border border-neutral-200 hover:border-primary/30 hover:-translate-y-1" data-category="写作">
+                    <i class="fa fa-pencil text-primary text-2xl mb-3"></i>
+                    <span>写作</span>
+                </button>
+                <button class="category-btn bg-white p-6 rounded-xl shadow hover:shadow-md transition-all text-center border border-neutral-200 hover:border-primary/30 hover:-translate-y-1" data-category="设计">
+                    <i class="fa fa-paint-brush text-primary text-2xl mb-3"></i>
+                    <span>设计</span>
+                </button>
+                <button class="category-btn bg-white p-6 rounded-xl shadow hover:shadow-md transition-all text-center border border-neutral-200 hover:border-primary/30 hover:-translate-y-1" data-category="摄影">
+                    <i class="fa fa-camera text-primary text-2xl mb-3"></i>
+                    <span>摄影</span>
+                </button>
+                <button class="category-btn bg-white p-6 rounded-xl shadow hover:shadow-md transition-all text-center border border-neutral-200 hover:border-primary/30 hover:-translate-y-1" data-category="音乐">
+                    <i class="fa fa-music text-primary text-2xl mb-3"></i>
+                    <span>音乐</span>
+                </button>
+                <button class="category-btn bg-white p-6 rounded-xl shadow hover:shadow-md transition-all text-center border border-neutral-200 hover:border-primary/30 hover:-translate-y-1" data-category="烹饪">
+                    <i class="fa fa-cutlery text-primary text-2xl mb-3"></i>
+                    <span>烹饪</span>
+                </button>
+                <button class="category-btn bg-white p-6 rounded-xl shadow hover:shadow-md transition-all text-center border border-neutral-200 hover:border-primary/30 hover:-translate-y-1" data-category="随机">
+                    <i class="fa fa-random text-primary text-2xl mb-3"></i>
+                    <span>随机</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 收藏区域 -->
+        <section id="saved" class="mb-20">
+            <h2 class="text-2xl font-bold mb-8 text-center">我的收藏</h2>
+            <div id="saved-inspirations" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <!-- 收藏的灵感会动态添加到这里 -->
+                <div class="text-center text-neutral-500 py-16 col-span-full">
+                    <i class="fa fa-bookmark-o text-4xl mb-4 opacity-30"></i>
+                    <p>你还没有收藏任何灵感，点击灵感卡片上的爱心图标来收藏</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关于区域 -->
+        <section id="about" class="max-w-3xl mx-auto text-center">
+            <div class="bg-white rounded-2xl shadow-lg p-8 border border-neutral-200">
+                <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa fa-info text-primary text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-4">关于灵感生成器</h2>
+                <p class="text-neutral-600 mb-6 leading-relaxed">
+                    灵感生成器是一个帮助创作者寻找创意的工具。我们提供各种类别的灵感提示，帮助你突破创作瓶颈，发现新的可能性。
+                </p>
+                <p class="text-neutral-600 leading-relaxed">
+                    每天回来获取新的灵感，或者浏览不同类别寻找适合你的创意火花。
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-neutral-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa fa-lightbulb-o text-primary text-2xl"></i>
+                        <h2 class="text-xl font-bold">灵感生成器</h2>
+                    </div>
+                    <p class="text-neutral-400 mt-2">每日创意的源泉</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-neutral-400 hover:text-white transition-colors">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-neutral-400 hover:text-white transition-colors">
+                        <i class="fa fa-instagram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-neutral-400 hover:text-white transition-colors">
+                        <i class="fa fa-facebook text-xl"></i>
+                    </a>
+                    <a href="#" class="text-neutral-400 hover:text-white transition-colors">
+                        <i class="fa fa-pinterest text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="border-t border-neutral-700 mt-8 pt-8 text-center text-neutral-400 text-sm">
+                <p>&copy; 2023 灵感生成器 | 用创意点亮每一天</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 通知提示 -->
+    <div id="notification" class="fixed bottom-6 right-6 bg-neutral-900 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 flex items-center">
+        <i id="notification-icon" class="fa fa-check-circle mr-2"></i>
+        <span id="notification-text">操作成功</span>
+    </div>
+
+    <script>
+        // 灵感数据
+        const inspirations = {
+            写作: [
+                {
+                    title: "探索被遗忘的角落",
+                    content: "写一个关于在城市中发现被遗忘空间的故事，这个空间可能是一个废弃的地铁站、旧图书馆的阁楼，或者是办公楼之间的小巷。探索这个空间的历史以及它如何影响发现者的生活。"
+                },
+                {
+                    title: "时间旅行者的日记",
+                    content: "创作一系列日记条目，记录一位时间旅行者在不同年代的见闻。重点描绘他们对微小日常变化的观察，以及这些变化如何反映更大的历史变迁。"
+                },
+                {
+                    title: "会说话的物品",
+                    content: "选择一件普通的家庭物品（如旧椅子、台灯或烹饪锅），从它的视角讲述一个家庭的故事。物品见证了哪些重要时刻？它对家庭成员有什么看法？"
+                }
+            ],
+            设计: [
+                {
+                    title: "自然与科技的融合",
+                    content: "设计一系列产品，将有机自然元素与现代科技无缝结合。可以考虑使用天然材料如木材、石材与金属、玻璃等结合，创造既有科技感又不失温暖的产品。"
+                },
+                {
+                    title: "微型空间最大化",
+                    content: "为一个面积不超过20平方米的小公寓设计完整的生活空间。挑战在于如何在有限空间内容纳睡眠、工作、烹饪和社交等所有功能，同时保持视觉上的宽敞感。"
+                },
+                {
+                    title: "五感体验包装",
+                    content: "为一款手工巧克力设计包装，不仅考虑视觉效果，还要考虑触觉（材质触感）、听觉（打开时的声音）、嗅觉（包装散发的气味），甚至味觉的暗示。"
+                }
+            ],
+            摄影: [
+                {
+                    title: "城市中的几何",
+                    content: "拍摄一组照片，捕捉城市环境中的几何形状和线条。寻找建筑中的对称、重复图案和不寻常角度，创造出抽象感的城市景观。"
+                },
+                {
+                    title: "一天中的光影变化",
+                    content: "选择同一个场景，在一天中的不同时间（清晨、中午、黄昏、夜晚）拍摄照片。记录光线如何改变场景的氛围、色彩和情感表达。"
+                },
+                {
+                    title: "反射与倒影",
+                    content: "寻找并拍摄各种反射现象 - 水面倒影、镜子反射、雨滴中的世界、眼镜片上的反光等。探索反射如何扭曲、重复或改变我们对现实的感知。"
+                }
+            ],
+            音乐: [
+                {
+                    title: "城市声音交响曲",
+                    content: "创作一首基于城市环境声音的音乐作品。可以录制街头噪音、交通声音、人群交谈等，将它们进行编排、处理，创造出独特的城市氛围音乐。"
+                },
+                {
+                    title: "情绪色彩旋律",
+                    content: "为每种颜色创作一段简短的旋律或和弦进行。思考红色、蓝色、绿色等颜色会是什么声音？尝试将这些色彩旋律组合成一首完整的作品。"
+                },
+                {
+                    title: "自然节奏",
+                    content: "观察自然界中的节奏 - 海浪拍岸、雨滴落下、树叶摇曳的声音，以此为基础创作一首音乐作品。尝试捕捉自然的不规则美感和有机律动。"
+                }
+            ],
+            烹饪: [
+                {
+                    title: "季节转换料理",
+                    content: "创造一道菜肴，完美捕捉季节交替的感觉。例如，在夏末秋初，结合夏季最后的新鲜蔬果与秋季的根茎类蔬菜和香料，创造出过渡性的味道。"
+                },
+                {
+                    title: "记忆中的味道",
+                    content: "重现一道与童年记忆相关的菜肴，但加入现代烹饪技巧和食材。保留能唤起情感的核心元素，同时赋予它新的层次和表现形式。"
+                },
+                {
+                    title: "色彩对比餐盘",
+                    content: "设计一道视觉上极具冲击力的菜肴，重点考虑色彩对比。选择互补色食材，创造出既美观又美味的餐盘，让食物本身成为艺术品。"
+                }
+            ]
+        };
+
+        // DOM元素
+        const generateBtn = document.getElementById('generate-btn');
+        const inspirationCard = document.getElementById('inspiration-card');
+        const inspirationCategory = document.getElementById('inspiration-category');
+        const inspirationTitle = document.getElementById('inspiration-title');
+        const inspirationContent = document.getElementById('inspiration-content');
+        const saveBtn = document.getElementById('save-btn');
+        const savedInspirations = document.getElementById('saved-inspirations');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const notificationIcon = document.getElementById('notification-icon');
+        const shareBtn = document.getElementById('share-btn');
+
+        // 当前灵感
+        let currentInspiration = {
+            category: '写作',
+            title: '探索被遗忘的角落',
+            content: '写一个关于在城市中发现被遗忘空间的故事，这个空间可能是一个废弃的地铁站、旧图书馆的阁楼，或者是办公楼之间的小巷。探索这个空间的历史以及它如何影响发现者的生活。'
+        };
+
+        // 从本地存储加载收藏的灵感
+        let savedItems = JSON.parse(localStorage.getItem('savedInspirations')) || [];
+
+        // 显示通知
+        function showNotification(message, isSuccess = true) {
+            notificationText.textContent = message;
+            notificationIcon.className = isSuccess ? 'fa fa-check-circle mr-2' : 'fa fa-times-circle mr-2 text-red-500';
+            notification.classList.remove('translate-y-20', 'opacity-0');
+            notification.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-y-0', 'opacity-100');
+                notification.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // 生成随机灵感
+        function generateInspiration(category = null) {
+            // 如果没有指定类别，随机选择一个
+            const categories = Object.keys(inspirations);
+            const selectedCategory = category || categories[Math.floor(Math.random() * categories.length)];
+            
+            // 从选定类别中随机选择一个灵感
+            const categoryInspirations = inspirations[selectedCategory];
+            const randomInspiration = categoryInspirations[Math.floor(Math.random() * categoryInspirations.length)];
+            
+            // 更新当前灵感
+            currentInspiration = {
+                category: selectedCategory,
+                title: randomInspiration.title,
+                content: randomInspiration.content
+            };
+            
+            // 更新UI
+            updateInspirationUI();
+            
+            // 添加动画效果
+            inspirationCard.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                inspirationCard.classList.remove('scale-95', 'opacity-0');
+            }, 200);
+        }
+
+        // 更新灵感UI
+        function updateInspirationUI() {
+            inspirationCategory.textContent = currentInspiration.category;
+            inspirationTitle.textContent = currentInspiration.title;
+            inspirationContent.textContent = currentInspiration.content;
+            
+            // 更新收藏按钮状态
+            const isSaved = savedItems.some(item => 
+                item.title === currentInspiration.title && 
+                item.category === currentInspiration.category
+            );
+            
+            if (isSaved) {
+                saveBtn.innerHTML = '<i class="fa fa-heart text-xl text-secondary"></i>';
+            } else {
+                saveBtn.innerHTML = '<i class="fa fa-heart-o text-xl"></i>';
+            }
+        }
+
+        // 保存灵感
+        function saveInspiration() {
+            const isSaved = savedItems.some(item => 
+                item.title === currentInspiration.title && 
+                item.category === currentInspiration.category
+            );
+            
+            if (isSaved) {
+                // 取消收藏
+                savedItems = savedItems.filter(item => 
+                    !(item.title === currentInspiration.title && 
+                      item.category === currentInspiration.category)
+                );
+                saveBtn.innerHTML = '<i class="fa fa-heart-o text-xl"></i>';
+                showNotification('已取消收藏');
+            } else {
+                // 添加收藏
+                savedItems.push({...currentInspiration});
+                saveBtn.innerHTML = '<i class="fa fa-heart text-xl text-secondary"></i>';
+                showNotification('收藏成功');
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem('savedInspirations', JSON.stringify(savedItems));
+            
+            // 更新收藏列表
+            renderSavedInspirations();
+        }
+
+        // 渲染收藏的灵感
+        function renderSavedInspirations() {
+            if (savedItems.length === 0) {
+                savedInspirations.innerHTML = `
+                    <div class="text-center text-neutral-500 py-16 col-span-full">
+                        <i class="fa fa-bookmark-o text-4xl mb-4 opacity-30"></i>
+                        <p>你还没有收藏任何灵感，点击灵感卡片上的爱心图标来收藏</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            savedInspirations.innerHTML = '';
+            
+            savedItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow p-6 border border-neutral-200 hover:shadow-md transition-all';
+                card.innerHTML = `
+                    <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-medium">${item.category}</span>
+                    <h3 class="text-xl font-bold mt-3 mb-2">${item.title}</h3>
+                    <p class="text-neutral-600 text-sm mb-4 line-clamp-2">${item.content}</p>
+                    <div class="flex justify-between items-center">
+                        <button class="use-inspiration text-primary hover:text-primary/80 text-sm font-medium" data-index="${index}">
+                            <i class="fa fa-lightbulb-o mr-1"></i> 使用这个灵感
+                        </button>
+                        <button class="delete-saved text-neutral-400 hover:text-red-500" data-index="${index}">
+                            <i class="fa fa-trash-o"></i>
+                        </button>
+                    </div>
+                `;
+                savedInspirations.appendChild(card);
+            });
+            
+            // 添加事件监听器
+            document.querySelectorAll('.use-inspiration').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    currentInspiration = savedItems[index];
+                    updateInspirationUI();
+                    // 滚动到灵感卡片
+                    inspirationCard.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+            
+            document.querySelectorAll('.delete-saved').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.currentTarget.dataset.index);
+                    savedItems.splice(index, 1);
+                    localStorage.setItem('savedInspirations', JSON.stringify(savedItems));
+                    renderSavedInspirations();
+                    showNotification('已删除收藏');
+                    
+                    // 如果删除的是当前显示的灵感，更新收藏按钮状态
+                    updateInspirationUI();
+                });
+            });
+        }
+
+        // 分享灵感
+        function shareInspiration() {
+            const text = `${currentInspiration.title} (${currentInspiration.category}): ${currentInspiration.content.substring(0, 100)}... 来自灵感生成器`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '灵感生成器',
+                    text: text
+                }).catch(err => {
+                    console.log('分享失败:', err);
+                    fallbackShare(text);
+                });
+            } else {
+                fallbackShare(text);
+            }
+        }
+
+        // 分享 fallback
+        function fallbackShare(text) {
+            // 创建一个临时输入框来复制文本
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showNotification('灵感已复制到剪贴板，可以粘贴分享');
+        }
+
+        // 事件监听器
+        generateBtn.addEventListener('click', () => generateInspiration());
+        
+        saveBtn.addEventListener('click', saveInspiration);
+        
+        shareBtn.addEventListener('click', shareInspiration);
+        
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.dataset.category;
+                if (category === '随机') {
+                    generateInspiration();
+                } else {
+                    generateInspiration(category);
+                }
+                // 滚动到灵感卡片
+                inspirationCard.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 滚动时改变导航栏样式
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('py-2', 'shadow');
+                header.classList.remove('py-4');
+            } else {
+                header.classList.add('py-4');
+                header.classList.remove('py-2', 'shadow');
+            }
+        });
+        
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    
+                    // 关闭移动菜单
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // 初始化
+        renderSavedInspirations();
+    </script>
+</body>
+</html>
